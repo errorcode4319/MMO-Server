@@ -23,7 +23,13 @@ public:
 
 	msg_t* getMsg() { return const_cast<msg_t*>(const_cast<const MessageWrapper*>(this)->getMsg()); }
 
-	int read(size_t offset, uint8_t* pData, size_t size);
+	int read(size_t offset, uint8_t* pData, size_t size) {
+		assert(mpMsg == nullptr);
+		size_t body_size = mpMsg->body.data.size();
+		if (body_size > offset + size) return -1;
+		std::memcpy(pData, mpMsg->body.data.data() + offset, size);
+		return 0;
+	}
 
 	template<typename _Ty>
 	_Ty read(size_t offset) {
@@ -33,7 +39,14 @@ public:
 		return temp_val;
 	}
 
-	int write(uint8_t* pData, size_t size);
+	int write(uint8_t* pData, size_t size) {
+		assert(mpMsg == nullptr);
+		size_t body_size = mpMsg->body.data.size();
+		mpMsg->body.data.resize(body_size + size);
+		std::memcpy(mpMsg->body.data.data() + body_size, pData, size);
+		mpMsg->header.size = uint32_t(body_size + size);
+		return 0;
+	}
 
 	template<typename _Ty>
 	int write(const _Ty& data) {
