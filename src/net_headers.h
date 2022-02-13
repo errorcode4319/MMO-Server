@@ -5,6 +5,7 @@
 #include<thread>
 #include<vector>
 #include<queue>
+#include<deque>
 #include<chrono>
 #include<cstdint>
 #include<memory>
